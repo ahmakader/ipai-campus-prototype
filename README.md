@@ -1,5 +1,7 @@
 # IPAI campus prototype
 
+Live website: https://ahmakader.github.io/ipai-campus-prototype/
+
 Interactive bilingual campus explorer with a fixed aerial overview, building labels, connected video navigation, building comparisons and illustrative office floor plans.
 
 ## Run locally
