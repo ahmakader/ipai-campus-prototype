@@ -1,0 +1,25 @@
+{
+  "FullCampus-Web.glb": {
+    "parts": [
+      "models/campus-00.part",
+      "models/campus-01.part",
+      "models/campus-02.part",
+      "models/campus-03.part",
+      "models/campus-04.part",
+      "models/campus-05.part"
+    ],
+    "bytes": 108905048,
+    "sha256": "f1c37a072359cc4369423338c92e670d9615530989f62a5852d6cae6221552de"
+  },
+  "IPAI-Spaces-Web.glb": {
+    "parts": [
+      "models/spaces-00.part",
+      "models/spaces-01.part",
+      "models/spaces-02.part",
+      "models/spaces-03.part",
+      "models/spaces-04.part"
+    ],
+    "bytes": 57891272,
+    "sha256": "504aa1cdb2d2225403a3953d2a4f80cb3a9ec59939d371af69ef7b91421fc764"
+  }
+}
