@@ -1,0 +1,41 @@
+(()=>{const timer=setInterval(()=>{if(!window.campusStudio)return;clearInterval(timer);init()},120);
+function init(){
+ const $=id=>document.getElementById(id),studio=$('campus-studio');
+ const missions=[
+  {key:'solar',icon:'sun',tag:'ENERGY',name:'After the sun goes down',note:'Solar drops to zero. Explore how storage supports a 3 MW evening load.',params:{hour:21,day:172,cloud:10,capacity:3,demand:3,battery:6},watch:'Watch grid imports and battery charge. More capacity only helps if it contains energy.',color:'#dfab57'},
+  {key:'solar',icon:'sun',tag:'ENERGY',name:'Winter solar shortfall',note:'Compare a low winter sun with a clear summer day at the same time.',params:{hour:12,day:355,cloud:25,capacity:3,demand:2,battery:4},watch:'Day of year changes sun elevation. Compare winter with day 172 while holding the other inputs fixed.',color:'#dfab57'},
+  {key:'robots',icon:'route',tag:'MOBILITY',name:'The lunchtime delivery rush',note:'Twelve robots share the paved network, slow down and yield to traffic.',params:{fleet:12,pace:1.4,drones:3,airspeed:8,wind:3,closed:false},watch:'Follow a robot. Clearance and detours can delay deliveries in narrow areas.',color:'#709bb3'},
+  {key:'robots',icon:'wind',tag:'MOBILITY',name:'Wind stops new flights',note:'Hold new drone missions while the ground fleet continues operating.',params:{fleet:8,drones:4,wind:14,closed:false},watch:'Above the assumed 10 m/s limit, drones remain on the ground. This is a dispatch rule, not an aerodynamic simulation.',color:'#709bb3'},
+  {key:'event',icon:'people',tag:'PEOPLE',name:'Doors open in ten minutes',note:'Six hundred visitors approach an event with limited admission capacity.',params:{attendance:600,admission:10,closed:false},watch:'Increase admission capacity and watch the queue. Arrival times and service points are assumed.',color:'#c48c75'},
+  {key:'heat',icon:'leaf',tag:'CLIMATE',name:'A 38�C campus afternoon',note:'Compare exposed paving with added trees and courtyard shade.',params:{air:38,trees:0,hour:14,canopy:false},watch:'Add shade and compare surface temperature at the same elapsed time. This is not an air-temperature prediction.',color:'#91a96b'},
+  {key:'rain',icon:'rain',tag:'CLIMATE',name:'An intense summer storm',note:'Test 80 mm/h rain, permeable surfaces and finite storage.',params:{rain:80,permeable:25,storage:75},watch:'Follow the water balance: rainfall equals infiltration, storage and remaining surface water.',color:'#729eb6'},
+  {key:'anergy',icon:'loop',tag:'THERMAL',name:'The waste-heat source goes offline',note:'Test winter heating demand without the Kaufland heat source.',params:{heating:4,cooling:.3,waste:1,geo:.6,temperature:14,outage:true},watch:'Inspect backup heating. KBP inspired the network concept; the operating numbers here are assumptions.',color:'#ca9c66'},
+  {key:'heatreuse',icon:'loop',tag:'THERMAL',name:'Computing becomes useful heat',note:'Explore heat recovery from a hypothetical campus data centre.',params:{it:2,cop:4,load:3,recovery:true},watch:'Compare useful heat, heat-pump electricity and backup demand with recovery enabled and disabled.',color:'#ca9c66'}
+ ];
+ const paths={sun:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6L7 7m10 10 1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',route:'M5 19V7a3 3 0 0 1 6 0v10a3 3 0 0 0 6 0V5M3 19h4M15 5h4',wind:'M3 8h12a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h5',people:'M16 21v-3a4 4 0 0 0-8 0v3M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0M19 9a3 3 0 0 1 0 6m0 2a3 3 0 0 1 3 3',leaf:'M5 19C0 9 10 3 20 4c1 10-4 17-12 14M5 21 16 9',rain:'M6 14a4 4 0 0 1 0-8 6 6 0 0 1 11 0 4 4 0 0 1 1 8M8 17l-1 3m6-3-1 3m6-3-1 3',loop:'M5 8a8 8 0 0 1 14 0l-1-5m1 5h-5M19 16a8 8 0 0 1-14 0l1 5m-1-5h5'};
+ const icon=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"> <path d="${paths[k]}"/></svg>`;
+ const launch=document.createElement('button');launch.id='sx-library';launch.innerHTML='Scenarios <span>09</span>';$('st-toggle').before(launch);
+ const dialog=document.createElement('dialog');dialog.id='sx-dialog';dialog.innerHTML=`<div class="sx-dialog-head"><div><span class="sx-eyebrow">IPAI / SCENARIO COLLECTION</span><h2>What would you like to test?</h2><p>Nine situations. One campus. Change a condition and inspect the consequence.</p></div><button id="sx-close" aria-label="Close scenario library">�</button></div><div class="sx-filters" role="group" aria-label="Filter scenarios">${['ALL','ENERGY','MOBILITY','PEOPLE','CLIMATE','THERMAL'].map((v,i)=>`<button data-filter="${v}" aria-pressed="${!i}">${v}</button>`).join('')}</div><div class="sx-grid">${missions.map((m,i)=>`<button class="sx-card" data-mission-index="${i}" style="--accent:${m.color}"><div class="sx-card-art">${icon(m.icon)}<span>0${i+1}</span></div><div class="sx-card-copy"><small>${m.tag} / SCENARIO</small><h3>${m.name}</h3><p>${m.note}</p><b>Explore scenario <span>?</span></b></div></button>`).join('')}</div><footer>Real campus geometry � Simulated loads and operations � No live telemetry</footer>`;document.body.append(dialog);
+ launch.onclick=()=>dialog.showModal();$('sx-close').onclick=()=>dialog.close();dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
+ dialog.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{dialog.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));dialog.querySelectorAll('[data-mission-index]').forEach(x=>x.hidden=b.dataset.filter!=='ALL'&&missions[+x.dataset.missionIndex].tag!==b.dataset.filter)});
+ const brief=document.createElement('section');brief.id='sx-brief';brief.hidden=true;$('st-presets').before(brief);
+ const status=document.createElement('div');status.id='sx-status';
+ document.querySelector('.st-results-heading').before(status);
+ function apply(m){campusStudio.choose(m.key);for(const [id,value]of Object.entries(m.params)){const e=$('sim-input-'+id);if(!e)continue;if(e.type==='checkbox'){e.checked=value;e.dispatchEvent(new Event('change'))}else{e.value=value;e.dispatchEvent(new Event('input'))}}$('sim-reset').click();brief.hidden=false;brief.innerHTML=`<span class="sx-eyebrow">YOUR EXPERIMENT</span><h3>${m.name}</h3><p>${m.watch}</p>`;$('st-statement').textContent=m.name;$('st-description').textContent=m.note;dialog.close();studio.classList.remove('controls-hidden');$('st-toggle').setAttribute('aria-expanded','true');}
+ dialog.querySelectorAll('[data-mission-index]').forEach(b=>b.onclick=()=>apply(missions[+b.dataset.missionIndex]));
+ document.querySelectorAll('.st-nav [data-case]').forEach(b=>b.addEventListener('click',()=>brief.hidden=true));
+ // Compact controls leave the scene available on a small screen.
+ if(innerWidth<=760){studio.classList.add('controls-hidden');$('st-toggle').setAttribute('aria-expanded','false')}
+ const oldCapture=$('st-capture').onclick;let reference=null;
+ $('st-capture').onclick=()=>{oldCapture();const s=campusLab.getSimulationState();reference=s.active?{key:s.scenario,values:[...s.statistics],elapsed:s.elapsed}:null;};
+ const chart=document.createElement('div');chart.id='sx-deltas';$('st-comparison').after(chart);
+ setInterval(()=>{const s=campusLab.getSimulationState();if(!s.active){status.textContent='SIMULATED CAMPUS ACTIVITY';chart.textContent='';return}
+ let text=s.paused?'PAUSED':'RUNNING';text+=' � '+Math.floor(s.elapsed)+' simulated seconds';
+ if(s.scenario==='solar'&&s.solar)text+=' � sun '+s.solar.elevation.toFixed(0)+'� � '+s.solar.irradiance.toFixed(0)+' W/m�';
+ if(s.scenario==='robots'&&s.deliveryFleet)text+=' � '+(s.deliveryFleet.dispatchHeld?'New flights held: high wind':s.deliveryFleet.airborne+' drones airborne')+' � '+(s.traffic?.yielding||0)+' robots yielding';
+ if(s.scenario==='rain'&&s.massBalance!==null)text+=' � water balance residual '+Math.abs(s.massBalance).toFixed(3)+' m�';status.textContent=text;
+ if(reference&&reference.key===s.scenario){chart.innerHTML=s.statistics.map((v,i)=>{const delta=v-reference.values[i];return `<span>Metric ${i+1}: <b>${delta>=0?'+':''}${delta.toFixed(2)}</b></span>`}).join('')+`<small>Change since snapshot at ${Math.floor(reference.elapsed)} s; elapsed time differs.</small>`;}else{reference=null;chart.textContent=''}
+ },600);
+ window.scenarioCollection={open:()=>dialog.showModal(),launch:i=>apply(missions[i]),count:missions.length};
+}
+})();
